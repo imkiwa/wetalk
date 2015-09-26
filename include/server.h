@@ -7,6 +7,10 @@
 #	define LISTEN_PORT 16650
 #endif
 
+#ifndef CMD_LOGIN
+#	define CMD_LOGIN "login"
+#endif
+
 #ifndef CMD_SERVER_CLOSED
 #	define CMD_SERVER_CLOSED "sever-closed"
 #endif

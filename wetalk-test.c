@@ -1,8 +1,6 @@
 #include "wetalk.h"
 #include "server.h"
 
-#define BUFFSIZE 1024
-
 void die(char *mess)
 {
 	perror(mess);
@@ -13,15 +11,15 @@ int main(int argc, char *argv[])
 {
 	int sock;
 	struct sockaddr_in wetalk_server;
-	unsigned char buffer[BUFFSIZE];
+	unsigned char buffer[BUFFER_SIZE];
 	size_t text_length;
 
-	if (argc != 3) {
+	if (argc != 2) {
 		fprintf(stderr, "usage: wetalk-test <ip> <string-to-send>\n");
 		return 1;
 	}
 
-	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		die("Failed to create socket");
 	}
 
@@ -34,16 +32,31 @@ int main(int argc, char *argv[])
 		die("Failed to connect with server");
 	}
 
-	char *text_to_send = argv[2];
-	text_length = strlen(text_to_send);
-	if (write(sock, text_to_send, text_length) != text_length) {
-		die("Mismatch in number of sent bytes");
-	}
-
+	write(sock, CMD_LOGIN, strlen(CMD_LOGIN));
 	
-	int bytes = read(sock, buffer, BUFFSIZE - 1);
-	buffer[bytes] = '\0';
-	fprintf(stderr, "[Client] Recive: %s\n", buffer);
+	int bytes = 0;
+	char input[BUFFER_SIZE];
+
+	while((bytes = read(sock, buffer, BUFFER_SIZE - 1)) > 0) {
+		memset(input, '\0', BUFFER_SIZE);
+
+		buffer[bytes] = '\0';
+		fprintf(stderr, "[Client] Recive: %s\n", buffer);
+
+		if (!strcmp(buffer, CMD_SERVER_CLOSED)) {
+			break;
+		}
+
+		if ((text_length = read(fileno(stdin), input, BUFFER_SIZE - 1)) < 0) {
+			break;
+		}
+
+		if (input[text_length] == '\n') {
+			input[text_length] = '\0';
+		}
+
+		write(sock, input, text_length);
+	}
 
 	write(sock, CMD_EXIT, strlen(CMD_EXIT));
 	close(sock);
