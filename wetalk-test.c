@@ -1,5 +1,22 @@
-#include "wetalk.h"
-#include "server.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#include "include/server_cmd.h"
+
+#ifndef BUFFER_SIZE
+#	define BUFFER_SIZE 1024
+#endif
 
 void die(char *mess)
 {
@@ -14,18 +31,13 @@ int main(int argc, char *argv[])
 	unsigned char buffer[BUFFER_SIZE];
 	size_t text_length;
 
-	if (argc != 2) {
-		fprintf(stderr, "usage: wetalk-test <ip> <string-to-send>\n");
-		return 1;
-	}
-
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		die("Failed to create socket");
 	}
 
 	memset(&wetalk_server, 0, sizeof(wetalk_server));      
 	wetalk_server.sin_family = AF_INET;                
-	wetalk_server.sin_addr.s_addr = inet_addr(argv[1]);
+	wetalk_server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	wetalk_server.sin_port = htons(LISTEN_PORT);     
 
 	if (connect(sock, (struct sockaddr *) &wetalk_server, sizeof(wetalk_server)) < 0) {
