@@ -13,6 +13,10 @@ export BIN := wetalk
 all:
 	@cd src && $(MAKE)
 
+wetalk-test: wetalk-test.o
+	$(CC) -o $@ $< -lreadline -ltermcap
+
 .PHONY: clean
 clean: 
 	@-cd src && $(MAKE) clean
+	@$(RM) wetalk-test.o wetalk-test
