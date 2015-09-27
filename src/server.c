@@ -78,7 +78,7 @@ bool server_init(client_handler handler) {
 	bzero(&sock_addr, sizeof(struct sockaddr_in));
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_port = htons(LISTEN_PORT);
-	sock_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	sock_addr.sin_addr.s_addr = INADDR_ANY; /* inet_addr("127.0.0.1"); */
 
 	int r = 0;
 
