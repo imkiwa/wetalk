@@ -1,33 +1,16 @@
 #include "wetalk.h"
-#include "user.h"
-#include "server.h"
-#include <signal.h>
-
-static void on_signal(int sig) {
-	if (sig == SIGINT) {
-		server_stop();
-
-		printf("\n");
-		exit(0);
-	}
-}
-
-static void on_client(client_info *info) {
-}
 
 int main(int argc, char **argv) {
-	signal(SIGINT, on_signal);
-
-	if (!pid_init()) {
-		wetalk_error("Server already running.");
+	if (argc == 1) {
+		return wetalk_usage(argv[0]);
 	}
 
-	if (!server_init(on_client)) {
-		perror("server_init");
-		return 1;
+	if (!strcmp(argv[1], "--daemon") || !strcmp(argv[1], "-d")) {
+		return server_main();
+	} else if (!strcmp(argv[1], "--client") || !strcmp(argv[1], "-c")) {
+		return client_main(argc - 1, argv + 1);
 	}
-	
-	server_loop();
-	return 0;
+
+	return wetalk_usage(argv[0]);
 }
 

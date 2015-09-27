@@ -9,11 +9,13 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include <pthread.h>
 #include <sqlite3.h>
 
 #ifndef PID_FILE
@@ -36,7 +38,15 @@
 #	define PASSWORD_MAX 16
 #endif
 
+#ifndef CLIENT_MAX
+#	define CLIENT_MAX 1024
+#endif
+
 bool pid_init();
 
 void wetalk_warning(const char *fmt, ...);
 void wetalk_error(const char *fmt, ...);
+int wetalk_usage(char *prog);
+
+int server_main();
+int client_main(int argc, char **argv);

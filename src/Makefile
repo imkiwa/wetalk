@@ -10,5 +10,5 @@ $(BIN): $(OBJ)
 
 .PHONY : clean
 clean: 
-	@echo " CLEAN   " $(OBJ)
+	@echo "    CLEAN   " $(OBJ)
 	@rm -rf $(OBJ) $(BIN)

@@ -27,8 +27,6 @@ void wetalk_warning(const char *fmt, ...) {
 	va_start(args, fmt);
 	wetalk_print("wetalk: warning: ", stderr, fmt, args);
 	va_end(args);
-
-	fprintf(stderr, "\n");
 }
 
 void wetalk_error(const char *fmt, ...) {
@@ -37,8 +35,17 @@ void wetalk_error(const char *fmt, ...) {
 	wetalk_print("wetalk: error: ", stderr, fmt, args);
 	va_end(args);
 
-	fprintf(stderr, "\n");
-
 	exit(1);
+}
+
+int wetalk_usage(char *prog) {
+	fprintf(stderr, 
+		"Usage: %s <subcommand>\n"
+		"  subcommand:\n"
+		"    --daemon, -d      run wetalk as server.\n"
+		"    --client, -c <ip> run wetalk as client.\n"
+		"\n", 
+		prog);
+	return 1;
 }
 
