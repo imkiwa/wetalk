@@ -27,8 +27,13 @@ void die(char *mess)
 	exit(1);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s <ip>\n", argv[0]);
+		return 1;
+	}
+
 	int sock;
 	struct sockaddr_in wetalk_server;
 	unsigned char buffer[BUFFER_SIZE];
@@ -39,7 +44,7 @@ int main(int argc, char *argv[])
 
 	memset(&wetalk_server, 0, sizeof(wetalk_server));      
 	wetalk_server.sin_family = AF_INET;                
-	wetalk_server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	wetalk_server.sin_addr.s_addr = inet_addr(argv[1]);
 	wetalk_server.sin_port = htons(LISTEN_PORT);     
 
 	if (connect(sock, (struct sockaddr *) &wetalk_server, sizeof(wetalk_server)) < 0) {
