@@ -1,12 +1,11 @@
 $(BIN): $(OBJ)
-	@$(CC) $(OBJ) $(CFLAGS) -o $(BIN)
+	@$(CC) $(OBJ) $(CFLAGS) $(LDFLAGS) -o $(BIN)
 	@echo "    CCLD  $(BIN)"
 
 
 %.o: %.c
 	@echo "    CC    $<"
-	@$(CC) -I. -Iinclude -I../include $(CFLAGS) -c $< -o $@
-
+	@$(CC) -I. -Iinclude -I../include $(CFLAGS) $(LDFLAGS) -c $< -o $@
 
 .PHONY : clean
 clean: 
