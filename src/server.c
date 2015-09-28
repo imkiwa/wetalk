@@ -8,7 +8,7 @@ static bool running = false;
 static int sock_fd;
 static struct sockaddr_in sock_addr;
 
-static client_info *all_client[128];
+static client_info *all_client[CLIENT_MAX];
 
 static void server_log(const char *fmt, ...) {
 	va_list args;
@@ -30,7 +30,7 @@ static void server_online_remove(client_info *info) {
 
 void server_online_foreach(online_foreach_callback fn, void *data) {
 	int i = 0;
-	for (i = 0; i < 128; ++i) {
+	for (i = 0; i < CLIENT_MAX; ++i) {
 		fn(all_client[i], data);
 	}
 }

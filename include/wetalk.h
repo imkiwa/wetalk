@@ -38,10 +38,6 @@
 #	define PASSWORD_MAX 16
 #endif
 
-#ifndef CLIENT_MAX
-#	define CLIENT_MAX 1024
-#endif
-
 bool pid_init();
 
 void wetalk_warning(const char *fmt, ...);

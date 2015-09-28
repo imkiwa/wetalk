@@ -4,6 +4,10 @@
 #include "user.h"
 #include "server_cmd.h"
 
+#ifndef CLIENT_MAX
+#	define CLIENT_MAX 1024
+#endif
+
 typedef struct client_info {
 	int client_fd;
 	int client_id;
