@@ -1,5 +1,5 @@
 export CC := gcc
-export CFLAGS += -O2  -lm -ldl -lpthread -lsqlite3 -lreadline -lhistory -ltermcap -lncursesw -fPIC --pie -g
+export CFLAGS += -O2  -lm -ldl -lpthread -lsqlite3 -lncursesw -fPIC --pie -g
 export LDFLAGS += 
 export MAKE := make --no-print-directory
 
