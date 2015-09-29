@@ -7,20 +7,26 @@
 #	define INPUT_MAXLINE 4
 #endif
 
-#undef MSG_APPEND_TO_HEAD
-
 static bool client_main_run;
 static int window_y, window_x;
 
 static void draw_editarea() {
-	#ifndef MSG_APPEND_TO_HEAD
-		move(window_y - INPUT_MAXLINE - 1, 0);
-		hline('-', window_x);
-	#endif
-
+	move(window_y - INPUT_MAXLINE - 1, 0);
+	hline('-', window_x);
 	mvprintw(window_y - INPUT_MAXLINE, 0, "> ");
 	clrtobot();
 	refresh();
+}
+
+static int compute_line(const char *msg) {
+	int r;
+	int l = strlen(msg);
+
+	r = l / window_x;
+	if (l % window_x != 0) {
+		++r;
+	}
+	return r;
 }
 
 static void msglist_add(const char *msg) {
@@ -28,19 +34,20 @@ static void msglist_add(const char *msg) {
 	getyx(stdscr, y, x);
 	move(0, 0);
 
-	#ifdef MSG_APPEND_TO_HEAD /* 新消息添加到最上面 */
-		insertln();
-		printw("%s", msg);
-		move(y, x);
+	int n = compute_line(msg);
+	int i;
+
+	for (i = 0; i < n; ++i) {
 		deleteln();
-		clrtobot();
-	#else /* 新消息添加到最下面 */
-		deleteln();
-		move(window_y - INPUT_MAXLINE - 2, 0); // -2 输入行和分割线
+	}
+
+	int newy = window_y - INPUT_MAXLINE - 2 - n + 1;
+	move(newy, 0);
+	for (i = 0; i < n; ++i) {
 		insertln();
-		printw("%s", msg);
-		move(y, x);
-	#endif
+	}
+	printw("%s", msg);
+	move(y, x);
 
 	refresh();
 }
