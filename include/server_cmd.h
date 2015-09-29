@@ -5,15 +5,23 @@
 #endif
 
 #ifndef CMD_LOGIN
-#	define CMD_LOGIN "login"
+#	define CMD_LOGIN "?wetalk-login"
+#endif
+
+#ifndef CMD_REGISTER
+#	define CMD_REGISTER "?wetalk-register"
 #endif
 
 #ifndef CMD_SERVER_CLOSED
-#	define CMD_SERVER_CLOSED "sever-closed"
+#	define CMD_SERVER_CLOSED "?wetalk-sever-closed"
 #endif
 
 #ifndef CMD_SUCCESS
 #	define CMD_SUCCESS "success"
+#endif
+
+#ifndef CMD_FAILED
+#	define CMD_FAILED "failed"
 #endif
 
 #ifndef CMD_EXIT

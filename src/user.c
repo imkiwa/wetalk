@@ -56,8 +56,7 @@ bool user_init() {
 		return true;
 	}
 
-	int r;
-	r = sqlite3_open(DB_PATH, &db);
+	int r = sqlite3_open(DB_PATH, &db);
 	if (r != SQLITE_OK) {
 		return false;
 	}
@@ -76,7 +75,7 @@ static int db_finduser_callback(void *data, int col_count,
 	char *password;
 
 	int i;
-	for(i=0;i<col_count;i++) {
+	for(i = 0; i < col_count; i++) {
 		if (!strcmp(col_name[i], "uid")) {
 			uid = atoi(col_values[i]);
 		} else if (!strcmp(col_name[i], "username")) {

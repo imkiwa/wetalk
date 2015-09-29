@@ -42,8 +42,9 @@ int wetalk_usage(char *prog) {
 	fprintf(stderr, 
 		"Usage: %s <subcommand>\n"
 		"  subcommand:\n"
-		"    --daemon, -d      run wetalk as server.\n"
-		"    --client, -c <ip> run wetalk as client.\n"
+		"    -d                            run wetalk as server.\n"
+		"    -c <ip> <uid> <passwrod>      run wetalk as client.\n"
+		"    -r <ip> <usernmae> <passwrod> register a user.\n"
 		"\n", 
 		prog);
 	return 1;

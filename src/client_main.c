@@ -30,7 +30,7 @@ static void msglist_add(const char *msg) {
 
 	#ifdef MSG_APPEND_TO_HEAD /* 新消息添加到最上面 */
 		insertln();
-		printw("[NewMessage] %s", msg);
+		printw("%s", msg);
 		move(y, x);
 		deleteln();
 		clrtobot();
@@ -38,7 +38,7 @@ static void msglist_add(const char *msg) {
 		deleteln();
 		move(window_y - INPUT_MAXLINE - 2, 0); // -2 输入行和分割线
 		insertln();
-		printw("[NewMessage] %s", msg);
+		printw("%s", msg);
 		move(y, x);
 	#endif
 
@@ -55,17 +55,44 @@ static void on_msg_recv(const char *msg) {
 }
 
 int client_main(int argc, char **argv) {
-	if (argc < 2) {
-		fprintf(stderr, "You must give me a ip address.\n");
+	if (argc < 4) {
+		fprintf(stderr, "Usage: wetalk -c <ip> <uid> <password>\n"
+						"Or   : wetalk -r <ip> <username> <password>\n");
 		return wetalk_usage("wetalk");
 	}
 
-	if (!client_init(argv[1], on_msg_recv)) {
-		wetalk_error("Failed to init client\n");
+	int uid = 0;
+	char *ipaddr = argv[1];
+	char *password = argv[3];
+
+	if (strlen(password) >= PASSWORD_MAX) {
+		fprintf(stderr, "错误的密码长度\n");
+		return 1;
 	}
 
-	if (!client_login(0, "")) {
-		wetalk_error("Failed to login\n");
+	if (!client_init(argv[1], on_msg_recv)) {
+		wetalk_error("初始化客户端失败\n");
+	}
+
+	if (!strcmp(argv[0], "-r")) {
+		uid = client_register(argv[2], password);
+		if (uid > 0) {
+			fprintf(stderr, "注册成功，您的 uid 为: %d\n这是以后登陆时必要的信息，请牢记\n回车键以继续", uid);
+			getchar();
+		} else {
+			fprintf(stderr, "注册失败\n");
+			return 1;
+		}
+	} else {
+		uid = atoi(argv[2]);
+		if (uid <= 0) {
+			fprintf(stderr, "错误的uid\n");
+			return 1;
+		}
+	}
+
+	if (!client_login(uid, password)) {
+		wetalk_error("登陆失败\n");
 	}
 
 	client_main_run = true;
@@ -73,7 +100,6 @@ int client_main(int argc, char **argv) {
 
 	setlocale(LC_ALL, "");
 	initscr();
-	raw();
 	getmaxyx(stdscr, window_y, window_x);
 
 	char input[BUFFER_SIZE] = {0};

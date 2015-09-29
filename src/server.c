@@ -46,29 +46,109 @@ void server_sned_to_client(client_info *info, const char *msg) {
 	}
 }
 
+
+static user_info* server_exec_login(const char *buffer) {
+	user_info *info = NULL;
+	char *password = (char*) walloc(sizeof(char) * PASSWORD_MAX);
+	int uid;
+
+	sscanf(buffer, "%*s %d %s", &uid, password);
+	info = user_login(uid, password);
+	wfree(password);
+	return info;
+}
+
+static int server_exec_register(const char *buffer) {
+	user_info *info = NULL;
+	char *password = (char*) walloc(sizeof(char) * PASSWORD_MAX);
+	char *username = (char*) walloc(sizeof(char) * USERNAME_MAX);
+
+	sscanf(buffer, "%*s %s %s", username, password);
+	info = user_create(username, password);
+	wfree(password);
+	wfree(username);
+
+	int uid = 0;
+	if (info) {
+		uid = info->uid;
+		wfree(info);
+	}
+
+	return uid;
+}
+
+
+static void server_notify_new_online_callback(client_info *info, void *data) {
+	if (info) {
+		client_info *from = (client_info*) data;
+
+		char buffer[128];
+		snprintf(buffer, 128, "用户 %s 已上线", from->client_user->username);
+		server_sned_to_client(info, buffer);
+	}
+}
+
+static void server_notify_disconn_callback(client_info *info, void *data) {
+	if (info) {
+		client_info *from = (client_info*) data;
+
+		char buffer[128];
+		snprintf(buffer, 128, "用户 %s 已下线", from->client_user->username);
+		server_sned_to_client(info, buffer);
+	}
+}
+
+static void server_notify_new_online(client_info *info) {
+	server_online_foreach(server_notify_new_online_callback, (void*) info);
+}
+
+static void server_notify_disconn(client_info *info) {
+	server_online_foreach(server_notify_disconn_callback, (void*) info);
+}
+
 static void* server_client_handler_caller(void *args) {
 	client_info *info = (client_info*) args;
 	unsigned char *buffer = walloc(sizeof(unsigned char) * BUFFER_SIZE);
 	bool handled = false;
+	bool longind = false;
+	char *from_addr = inet_ntoa(info->client_addr.sin_addr);
 
-	server_log("Handler caller #%d started.\n", info->client_fd);
-	server_online_add(info);
+	server_log("New client from %s, fd #%d\n", from_addr, info->client_fd);
 
 	int length = 0;
 	while (running && (length = read(info->client_fd, buffer, BUFFER_SIZE - 1)) > 0) {
 		buffer[length] = '\0';
 		handled = false;
 
-		// server_log("Recive from client #%d: %s\n", info->client_fd, buffer);
-
 		if (!strcmp(buffer, CMD_EXIT)) {
 			handled = true;
 			break;
-		} else if (!strcmp(buffer, CMD_LOGIN)) {
+		} else if (!strncmp(buffer, CMD_LOGIN, strlen(CMD_LOGIN))) {
+			user_info *user = server_exec_login(buffer);
+			if (user) {
+				longind = true;
+				info->client_user = user;
+				server_sned_to_client(info, CMD_SUCCESS);
+				server_notify_new_online(info);
+				server_online_add(info);
+			} else {
+				server_sned_to_client(info, CMD_FAILED);
+				break;
+			}
+			handled = true;
+		} else if (!strncmp(buffer, CMD_REGISTER, strlen(CMD_REGISTER))) {
+			int uid = server_exec_register(buffer);
+			if (uid <= 0) {
+				server_sned_to_client(info, "0");
+			} else {
+				char uidstring[4] = {0};
+				snprintf(uidstring, 4, "%d", uid);
+				server_sned_to_client(info, uidstring);
+			}
 			handled = true;
 		}
 
-		if (!handled) {
+		if (!handled && longind) {
 			info->client_msg = buffer;
 			client_hdl(info);
 		}
@@ -76,10 +156,15 @@ static void* server_client_handler_caller(void *args) {
 		memset(buffer, '\0', BUFFER_SIZE);
 	}
 
-	server_sned_to_client(info, CMD_SERVER_CLOSED);
 	server_log("Client #%d has disconnected.\n", info->client_fd);
 
-	server_online_remove(info);
+	if (longind) {
+		server_sned_to_client(info, CMD_SERVER_CLOSED);
+		server_online_remove(info);
+		server_notify_disconn(info);
+		free(info->client_user);
+	}
+
 	close(info->client_fd);
 	wfree(info);
 	wfree(buffer);
@@ -142,8 +227,6 @@ void server_loop() {
 			wfree(client);
 			continue;
 		}
-
-		server_log("New client from %s, fd #%d\n", inet_ntoa(client->client_addr.sin_addr), client->client_fd);
 
 		if (pthread_create(&(client->client_thread), NULL, server_client_handler_caller, (void*)client) != 0) {
 			close(client->client_fd);
