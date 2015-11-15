@@ -3,6 +3,7 @@
 #include "wetalk.h"
 #include "user.h"
 #include "server.h"
+#include "walloc.h"
 
 typedef void(*on_msg_recived_callback)(const char *msg);
 
