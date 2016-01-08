@@ -44,11 +44,11 @@ static char* client_get_result(const char *fmt, ...) {
 static void* read_thread(void *args) {
 	int bytes = 0;
 	unsigned char buffer[BUFFER_SIZE];
-	int sock = (int) args;
+	int fd = sock;
 
 	running = true;
 
-	while (running && (bytes = read(sock, buffer, BUFFER_SIZE - 1)) > 0) {
+	while (running && (bytes = read(fd, buffer, BUFFER_SIZE - 1)) > 0) {
 		buffer[bytes] = '\0';
 
 		if (!strcmp(buffer, CMD_SERVER_CLOSED)) {
@@ -96,7 +96,7 @@ bool client_login(int uid, const char *password) {
 
 	wfree(buffer);
 
-	if (pthread_create(&read_thr, NULL, read_thread, (void*) sock) < 0) {
+	if (pthread_create(&read_thr, NULL, read_thread, NULL) < 0) {
 		return false;
 	}
 

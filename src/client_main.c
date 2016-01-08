@@ -1,7 +1,7 @@
 #include "client.h"
 
 #include <locale.h>
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 #ifndef INPUT_MAXLINE
 #	define INPUT_MAXLINE 4

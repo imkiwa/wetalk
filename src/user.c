@@ -1,5 +1,6 @@
 #include "wetalk.h"
 #include "user.h"
+#include "walloc.h"
 
 #ifndef DB_CREATE_SQL
 	#define DB_CREATE_SQL \

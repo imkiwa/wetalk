@@ -1,6 +1,7 @@
 #include "wetalk.h"
 #include "user.h"
 #include "server.h"
+#include "walloc.h"
 
 static void main_server_on_signal(int sig) {
 	if (sig == SIGINT) {

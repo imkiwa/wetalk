@@ -222,7 +222,7 @@ void server_loop() {
 		bzero(&(client->client_addr), sizeof(struct sockaddr_in));
 		client->client_addr_size = sizeof(struct sockaddr_in);
 
-		client->client_fd = accept(sock_fd, (struct sockaddr*) &(client->client_addr), &(client->client_addr_size));
+		client->client_fd = accept(sock_fd, (struct sockaddr*) &(client->client_addr), (socklen_t*)&(client->client_addr_size));
 		if (client->client_fd < 0) {
 			wfree(client);
 			continue;
