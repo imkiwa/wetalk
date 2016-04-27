@@ -1,0 +1,3 @@
+[submodule "deps/qserver"]
+	path = deps/qserver
+	url = git@github.com:zt515/qserver
